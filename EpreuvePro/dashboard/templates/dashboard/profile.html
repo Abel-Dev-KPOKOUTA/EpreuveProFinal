@@ -1,0 +1,583 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Mon profil - EpreuvesPro{% endblock %}
+{% block dashboard_title %}👤 Mon profil{% endblock %}
+{% block dashboard_subtitle %}Gère tes informations personnelles{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Sidebar Card */
+    .profile-sidebar {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        height: fit-content;
+    }
+    
+    .avatar-section {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #FF6B35 0%, #F7C548 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        font-size: 3rem;
+        color: white;
+        font-weight: 700;
+        position: relative;
+    }
+    
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .avatar-edit {
+        position: absolute;
+        bottom: 0;
+        right: 50%;
+        transform: translateX(40px);
+        width: 36px;
+        height: 36px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        font-size: 1rem;
+    }
+    
+    .profile-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .profile-email {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-plan {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: #f1f5f9;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .profile-plan.premium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .profile-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f1f5f9;
+    }
+    
+    .profile-stat {
+        text-align: center;
+    }
+    
+    .profile-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    
+    .profile-stat-label {
+        font-size: 0.75rem;
+        color: #64748B;
+        text-transform: uppercase;
+    }
+    
+    .member-since {
+        margin-top: 1rem;
+        font-size: 0.875rem;
+        color: #94a3b8;
+    }
+    
+    /* Main Form */
+    .profile-main {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+    }
+    
+    .form-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-card-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+    
+    .form-card-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .btn-edit {
+        padding: 0.5rem 1rem;
+        background: #f1f5f9;
+        color: #475569;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-edit:hover {
+        background: #e2e8f0;
+    }
+    
+    .btn-save {
+        padding: 0.625rem 1.25rem;
+        background: linear-gradient(135deg, #FF6B35, #E55A2B);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .form-group label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #64748B;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #FF6B35;
+    }
+    
+    .form-group input:disabled,
+    .form-group select:disabled {
+        background: #f8fafc;
+        color: #64748B;
+    }
+    
+    .form-hint {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-top: 0.375rem;
+    }
+    
+    /* Progress Section */
+    .progress-card {
+        background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        border: 1px solid #86efac;
+    }
+    
+    .progress-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .progress-icon {
+        width: 48px;
+        height: 48px;
+        background: #22c55e;
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .progress-info h4 {
+        color: #166534;
+        margin-bottom: 0.25rem;
+    }
+    
+    .progress-info p {
+        color: #15803d;
+        font-size: 0.875rem;
+    }
+    
+    .progress-bar-large {
+        height: 12px;
+        background: #dcfce7;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    
+    .progress-fill-large {
+        height: 100%;
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+        border-radius: 6px;
+        transition: width 0.5s ease;
+    }
+    
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .progress-step {
+        text-align: center;
+        color: #94a3b8;
+    }
+    
+    .progress-step.completed {
+        color: #16a34a;
+        font-weight: 600;
+    }
+    
+    /* Security Section */
+    .security-option {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .security-option:last-child {
+        border-bottom: none;
+    }
+    
+    .security-info h4 {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+    
+    .security-info p {
+        font-size: 0.875rem;
+        color: #64748B;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        width: 48px;
+        height: 24px;
+        background: #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .toggle-switch.active {
+        background: #FF6B35;
+    }
+    
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        transition: transform 0.3s;
+    }
+    
+    .toggle-switch.active::after {
+        transform: translateX(24px);
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="profile-grid">
+    <!-- Sidebar -->
+    <div class="profile-sidebar">
+        <div class="avatar-section">
+            <div class="profile-avatar">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="Avatar">
+                {% else %}
+                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                {% endif %}
+            </div>
+            <div class="avatar-edit" onclick="document.getElementById('avatarInput').click()" title="Changer la photo">
+                📷
+            </div>
+            <input type="file" id="avatarInput" hidden accept="image/*" onchange="uploadAvatar(this)">
+        </div>
+        
+        <div class="profile-name">{{ user.get_full_name }}</div>
+        <div class="profile-email">{{ user.email }}</div>
+        
+        <div class="profile-plan {% if is_premium %}premium{% endif %}">
+            {% if is_premium %}
+                ⭐ {{ plan_name }}
+            {% else %}
+                🆓 Gratuit
+            {% endif %}
+        </div>
+        
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <div class="profile-stat-value">{{ total_downloads }}</div>
+                <div class="profile-stat-label">Téléchargements</div>
+            </div>
+            <div class="profile-stat">
+                <div class="profile-stat-value">{{ days_as_member }}</div>
+                <div class="profile-stat-label">Jours membre</div>
+            </div>
+        </div>
+        
+        <div class="member-since">
+            Membre depuis {{ member_since|date:"F Y" }}
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="profile-main">
+        <!-- Profile Completion -->
+        <div class="form-card progress-card">
+            <div class="progress-header">
+                <div class="progress-icon">🎯</div>
+                <div class="progress-info">
+                    <h4>Complétion du profil</h4>
+                    <p>{{ completion_percentage }}% terminé - Plus que quelques étapes !</p>
+                </div>
+            </div>
+            <div class="progress-bar-large">
+                <div class="progress-fill-large" style="width: {{ completion_percentage }}%"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="progress-step {% if user.first_name %}completed{% endif %}">✓ Nom</div>
+                <div class="progress-step {% if user.email %}completed{% endif %}">✓ Email</div>
+                <div class="progress-step {% if user.phone %}completed{% endif %}">✓ Téléphone</div>
+                <div class="progress-step {% if user.school %}completed{% endif %}">✓ École</div>
+                <div class="progress-step {% if user.class_level %}completed{% endif %}">✓ Classe</div>
+            </div>
+        </div>
+        
+        <!-- Personal Info Form -->
+        <form method="post" action="{% url 'dashboard:profile' %}" class="form-card" id="profileForm">
+            {% csrf_token %}
+            
+            <div class="form-card-header">
+                <h3 class="form-card-title">📝 Informations personnelles</h3>
+                <div class="form-card-actions">
+                    <button type="button" class="btn-edit" onclick="toggleEdit()" id="editBtn">Modifier</button>
+                    <button type="submit" class="btn-save" id="saveBtn" style="display: none;">💾 Enregistrer</button>
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Prénom</label>
+                    <input type="text" name="first_name" value="{{ user.first_name }}" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" name="last_name" value="{{ user.last_name }}" disabled>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" value="{{ user.email }}" disabled>
+                    <span class="form-hint">L'email ne peut pas être modifié</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Téléphone (WhatsApp)</label>
+                    <input type="tel" name="phone" value="{{ user.phone|default:'' }}" disabled placeholder="+229 01 23 45 67">
+                </div>
+                
+                <div class="form-group">
+                    <label>Établissement scolaire</label>
+                    <input type="text" name="school" value="{{ user.school|default:'' }}" disabled placeholder="Nom de ton école">
+                </div>
+                
+                <div class="form-group">
+                    <label>Classe actuelle</label>
+                    <select name="class_level" disabled>
+                        <option value="">Sélectionne ta classe</option>
+                        {% for classe in classes_list %}
+                        <option value="{{ classe }}" {% if user.class_level == classe %}selected{% endif %}>
+                            {{ classe }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Security Settings -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <h3 class="form-card-title">🔒 Sécurité</h3>
+            </div>
+            
+            <div class="security-option">
+                <div class="security-info">
+                    <h4>Changer le mot de passe</h4>
+                    <p>Dernière modification : il y a 3 mois</p>
+                </div>
+                <a href="#" class="btn-edit">Modifier</a>
+            </div>
+            
+            <div class="security-option">
+                <div class="security-info">
+                    <h4>Notifications email</h4>
+                    <p>Recevoir les alertes de nouvelles épreuves</p>
+                </div>
+                <div class="toggle-switch {% if user.newsletter_subscribed %}active{% endif %}" onclick="toggleNewsletter(this)"></div>
+            </div>
+            
+            <div class="security-option">
+                <div class="security-info">
+                    <h4>Authentification à deux facteurs</h4>
+                    <p>Sécuriser ton compte avec 2FA</p>
+                </div>
+                <button class="btn-edit" onclick="alert('2FA à implémenter')">Activer</button>
+            </div>
+        </div>
+        
+        <!-- Danger Zone -->
+        <div class="form-card" style="border: 1px solid #fee2e2;">
+            <div class="form-card-header">
+                <h3 class="form-card-title" style="color: #991b1b;">⚠️ Zone de danger</h3>
+            </div>
+            
+            <div class="security-option">
+                <div class="security-info">
+                    <h4 style="color: #991b1b;">Supprimer mon compte</h4>
+                    <p>Cette action est irréversible</p>
+                </div>
+                <button class="btn-edit" style="background: #fee2e2; color: #991b1b;" onclick="confirmDelete()">
+                    Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let isEditing = false;
+
+function toggleEdit() {
+    isEditing = !isEditing;
+    const inputs = document.querySelectorAll('#profileForm input:not([type="email"]), #profileForm select');
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    
+    inputs.forEach(input => {
+        input.disabled = !isEditing;
+    });
+    
+    if (isEditing) {
+        editBtn.textContent = 'Annuler';
+        editBtn.style.background = '#fee2e2';
+        editBtn.style.color = '#991b1b';
+        saveBtn.style.display = 'inline-block';
+    } else {
+        editBtn.textContent = 'Modifier';
+        editBtn.style.background = '#f1f5f9';
+        editBtn.style.color = '#475569';
+        saveBtn.style.display = 'none';
+    }
+}
+
+function uploadAvatar(input) {
+    if (input.files && input.files[0]) {
+        const formData = new FormData();
+        formData.append('avatar', input.files[0]);
+        
+        // À implémenter : upload AJAX
+        alert('Upload avatar à implémenter');
+    }
+}
+
+function toggleNewsletter(toggle) {
+    toggle.classList.toggle('active');
+    // À implémenter : API call pour sauvegarder
+    const isActive = toggle.classList.contains('active');
+    alert('Newsletter ' + (isActive ? 'activée' : 'désactivée') + ' (à implémenter)');
+}
+
+function confirmDelete() {
+    if (confirm('⚠️ ES-TU SÛR ?\n\nCette action supprimera définitivement ton compte et toutes tes données.\n\nCette action est irréversible.')) {
+        if (confirm('Dernière chance : tapes "SUPPRIMER" pour confirmer')) {
+            alert('Suppression à implémenter');
+        }
+    }
+}
+</script>
+{% endblock %}

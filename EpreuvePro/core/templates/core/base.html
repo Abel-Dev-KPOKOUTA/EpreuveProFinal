@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EpreuvesPro Bénin - Réussis tes examens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #004E89;
+            --accent: #F7C548;
+            --bg: #FAFBFC;
+            --text: #1A1A2E;
+            --text-light: #64748B;
+            --success: #10B981;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Animations Keyframes */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* Utility Classes */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-100 { transition-delay: 0.1s; }
+        .delay-200 { transition-delay: 0.2s; }
+        .delay-300 { transition-delay: 0.3s; }
+
+        /* Navigation - Desktop & Mobile */
+        nav {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--secondary);
+            text-decoration: none;
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Desktop Navigation */
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Mobile Menu Button - Hamburger */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 1002;
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+
+        .hamburger {
+            width: 24px;
+            height: 18px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+        }
+
+        .mobile-menu-btn.active .hamburger span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .mobile-menu-btn.active .hamburger span:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .mobile-menu-btn.active .hamburger span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Mobile Menu Panel */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 320px;
+            height: 100vh;
+            background: var(--white);
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            padding-top: 80px;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .mobile-menu-header h3 {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        .mobile-menu-links {
+            list-style: none;
+            padding: 0 1.5rem;
+        }
+
+        .mobile-menu-links li {
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu.active .mobile-menu-links li {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .mobile-menu.active .mobile-menu-links li:nth-child(1) { transition-delay: 0.1s; }
+        .mobile-menu.active .mobile-menu-links li:nth-child(2) { transition-delay: 0.15s; }
+        .mobile-menu.active .mobile-menu-links li:nth-child(3) { transition-delay: 0.2s; }
+        .mobile-menu.active .mobile-menu-links li:nth-child(4) { transition-delay: 0.25s; }
+        .mobile-menu.active .mobile-menu-links li:nth-child(5) { transition-delay: 0.3s; }
+
+        .mobile-menu-links a {
+            display: block;
+            padding: 1rem;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-menu-links a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 107, 53, 0.1), transparent);
+            transition: width 0.3s;
+        }
+
+        .mobile-menu-links a:hover::before {
+            width: 100%;
+        }
+
+        .mobile-menu-links a:hover {
+            color: var(--primary);
+            padding-left: 1.5rem;
+        }
+
+        .mobile-menu-links a.active {
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--primary);
+        }
+
+        .mobile-menu-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--white);
+        }
+
+        .mobile-menu-footer .btn {
+            width: 100%;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.95rem;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary);
+            color: var(--white);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--secondary) 0%, #0066CC 100%);
+            color: var(--white);
+            padding: 8rem 1.5rem 4rem;
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            margin-top: 0;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeInDown 0.8s ease-out 0.2s both;
+            flex-wrap: wrap;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            max-width: 700px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+            background: linear-gradient(to right, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .search-box {
+            background: var(--white);
+            padding: 0.5rem;
+            border-radius: 12px;
+            display: flex;
+            gap: 0.5rem;
+            max-width: 600px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+            flex-wrap: wrap;
+        }
+
+        .search-box input {
+            flex: 1;
+            min-width: 200px;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            border-radius: 8px;
+        }
+
+        .search-box .btn {
+            white-space: nowrap;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 1s both;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease-out 1.2s both;
+            flex-wrap: wrap;
+        }
+
+        .avatars {
+            display: flex;
+            flex-shrink: 0;
+        }
+
+        .avatars img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--white);
+            margin-left: -8px;
+            transition: transform 0.3s;
+        }
+
+        .avatars img:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        /* Features Bar */
+        .features-bar {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            max-width: 1000px;
+            margin: -3rem auto 0;
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            animation: fadeInUp 1s ease-out 1.5s both;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            transition: all 0.3s;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 107, 53, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 107, 53, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        /* Sections */
+        section {
+            padding: 4rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .section-header p {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        /* Steps */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin: 0 auto 1rem;
+        }
+
+        /* Pricing */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .pricing-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pricing-card.popular {
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .pricing-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .price span {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .pricing-features li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .info-box {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.25rem;
+            background: rgba(247, 197, 72, 0.2);
+            border-radius: 12px;
+            border: 2px dashed var(--accent);
+            font-size: 0.9rem;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            z-index: 1001;
+            transition: width 0.1s;
+            width: 0%;
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+            z-index: 99;
+            font-size: 1.2rem;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text);
+            color: white;
+            padding: 3rem 1.5rem 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            display: block;
+            padding: 0.25rem 0;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero {
+                padding: 7rem 1rem 3rem;
+                min-height: auto;
+            }
+
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+
+            .search-box .btn {
+                width: 100%;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .features-bar {
+                margin-top: -2rem;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+                padding: 1rem;
+            }
+
+            .feature-item {
+                flex-direction: column;
+                text-align: center;
+                padding: 0.75rem 0.5rem;
+            }
+
+            .feature-text {
+                font-size: 0.75rem;
+            }
+
+            .pricing-card.popular {
+                transform: none;
+            }
+
+            .pricing-card.popular:hover {
+                transform: translateY(-5px);
+            }
+
+            .price {
+                font-size: 2rem;
+            }
+
+            section {
+                padding: 3rem 1rem;
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .features-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-item {
+                flex-direction: row;
+                justify-content: flex-start;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        /* Landscape mode */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .hero {
+                min-height: auto;
+                padding: 6rem 1rem 2rem;
+            }
+
+            .mobile-menu {
+                padding-top: 60px;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) {
+            .btn:hover {
+                transform: none;
+            }
+            
+            .feature-item:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">📚</div>
+                EpreuvesPro
+            </a>
+            
+            <div class="nav-links">
+                <a href="#accueil">Accueil</a>
+                <a href="#epreuves">Épreuves</a>
+                <a href="#tarifs">Tarifs</a>
+                <a href="#contact">Contact</a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-primary">Connexion</a>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <h3>Menu</h3>
+        </div>
+        <ul class="mobile-menu-links">
+            <li><a href="#accueil" class="mobile-link">🏠 Accueil</a></li>
+            <li><a href="#epreuves" class="mobile-link">📚 Épreuves</a></li>
+            <li><a href="#tarifs" class="mobile-link">💳 Tarifs</a></li>
+            <li><a href="#contact" class="mobile-link">📞 Contact</a></li>
+            <li><a href="#" class="mobile-link">👤 Mon Compte</a></li>
+        </ul>
+        <div class="mobile-menu-footer">
+            <a href="#" class="btn btn-primary">Se connecter</a>
+            <a href="#" class="btn btn-secondary">Créer un compte</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="accueil">
+        <div class="hero-container">
+            <div class="badge">
+                <span>🎓</span>
+                <span>2500+ ÉPREUVES & CORRIGÉS</span>
+            </div>
+            
+            <h1>Réussis ton BEPC & BAC avec les vraies épreuves</h1>
+            
+            <p>Accède à des milliers d'épreuves et corrigés détaillés pour les examens du collège et lycée.</p>
+            
+            <div class="search-box">
+                <input type="text" placeholder="Rechercher par classe, matière...">
+                <button class="btn btn-primary">🔍 Rechercher</button>
+            </div>
+            
+            <div class="hero-buttons">
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary">🚀 Commencer gratuitement</a>
+                <a href="#tarifs" class="btn btn-secondary">💳 Voir les tarifs</a>
+            </div>
+            
+            <div class="trust-badge">
+                <div class="avatars">
+                    <img src="https://i.pravatar.cc/150?img=1" alt="User">
+                    <img src="https://i.pravatar.cc/150?img=2" alt="User">
+                    <img src="https://i.pravatar.cc/150?img=3" alt="User">
+                    <img src="https://i.pravatar.cc/150?img=4" alt="User">
+                </div>
+                <span>⭐ 15,000+ élèves</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Bar -->
+    <div class="features-bar animate-on-scroll">
+        <div class="feature-item">
+            <div class="feature-icon">📚</div>
+            <span class="feature-text">6ème → Terminale</span>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">✅</div>
+            <span class="feature-text">Corrigés détaillés</span>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">💳</div>
+            <span class="feature-text">Paiement Mobile</span>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">📱</div>
+            <span class="feature-text">100% Mobile</span>
+        </div>
+    </div>
+
+    <!-- How it Works -->
+    <section>
+        <div class="section-header animate-on-scroll">
+            <h2>Comment ça marche ?</h2>
+            <p>3 étapes simples pour accéder aux meilleures ressources</p>
+        </div>
+        
+        <div class="steps">
+            <div class="step animate-on-scroll delay-100">
+                <div class="step-number">1</div>
+                <h3>Crée ton compte</h3>
+                <p>Inscription gratuite en 30 secondes avec ton email ou numéro</p>
+            </div>
+            <div class="step animate-on-scroll delay-200">
+                <div class="step-number">2</div>
+                <h3>Choisis ton accès</h3>
+                <p>Abonnement ou achat à l'unité selon tes besoins</p>
+            </div>
+            <div class="step animate-on-scroll delay-300">
+                <div class="step-number">3</div>
+                <h3>Télécharge et révise</h3>
+                <p>Accède immédiatement aux épreuves et corrigés PDF</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="tarifs">
+        <div class="section-header animate-on-scroll">
+            <h2>Des tarifs adaptés à tous</h2>
+            <p>Choisis la formule qui te convient</p>
+        </div>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card animate-on-scroll delay-100">
+                <div class="pricing-header">
+                    <h3>🆓 Gratuit</h3>
+                    <div class="price">0 <span>FCFA</span></div>
+                </div>
+                <ul class="pricing-features">
+                    <li>3 épreuves offertes</li>
+                    <li>Accès limité aux corrigés</li>
+                    <li>Support par email</li>
+                </ul>
+                <button class="btn btn-secondary" style="width: 100%;">Commencer</button>
+            </div>
+
+            <div class="pricing-card popular animate-on-scroll delay-200">
+                <div class="popular-badge">PLUS POPULAIRE</div>
+                <div class="pricing-header">
+                    <h3>💳 Mensuel</h3>
+                    <div class="price">2,500 <span>FCFA/mois</span></div>
+                </div>
+                <ul class="pricing-features">
+                    <li>100 téléchargements/mois</li>
+                    <li>Tous les corrigés détaillés</li>
+                    <li>Support prioritaire</li>
+                    <li>Annulable à tout moment</li>
+                </ul>
+                <button class="btn btn-primary" style="width: 100%;">Choisir ce plan</button>
+            </div>
+
+            <div class="pricing-card animate-on-scroll delay-300">
+                <div class="pricing-header">
+                    <h3>💎 Annuel</h3>
+                    <div class="price">20,000 <span>FCFA/an</span></div>
+                </div>
+                <ul class="pricing-features">
+                    <li>Téléchargements illimités</li>
+                    <li>Tous les corrigés détaillés</li>
+                    <li>Support 24/7</li>
+                    <li>Accès aux livres numériques</li>
+                </ul>
+                <button class="btn btn-secondary" style="width: 100%;">Choisir ce plan</button>
+            </div>
+        </div>
+
+        <div class="info-box animate-on-scroll">
+            <p><strong>💡 Achat à l'unité :</strong> Épreuve (25 FCFA) • Corrigé (25 FCFA) • Pack (50 FCFA)</p>
+        </div>
+    </section>
+
+    <!-- Back to Top -->
+    <div class="back-to-top" id="backToTop">↑</div>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section animate-on-scroll">
+                <h3>EpreuvesPro</h3>
+                <p style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">La plateforme éducative #1 au Bénin.</p>
+            </div>
+            <div class="footer-section animate-on-scroll delay-100">
+                <h3>Liens</h3>
+                <a href="#">Accueil</a>
+                <a href="#">Épreuves</a>
+                <a href="#">Tarifs</a>
+            </div>
+            <div class="footer-section animate-on-scroll delay-200">
+                <h3>Légal</h3>
+                <a href="#">Conditions</a>
+                <a href="#">Confidentialité</a>
+            </div>
+            <div class="footer-section animate-on-scroll delay-300">
+                <h3>Contact</h3>
+                <a href="mailto:contact@epreuvespro.bj">Email</a>
+                <a href="tel:+229XXXXXXXX">WhatsApp</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2024 EpreuvesPro Bénin. Fait avec ❤️ au Bénin 🇧🇯</p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        let isMenuOpen = false;
+
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            mobileMenuBtn.classList.toggle('active', isMenuOpen);
+            mobileMenu.classList.toggle('active', isMenuOpen);
+            mobileOverlay.classList.toggle('active', isMenuOpen);
+            document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+        }
+
+        function closeMenu() {
+            isMenuOpen = false;
+            mobileMenuBtn.classList.remove('active');
+            mobileMenu.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMenu);
+        mobileOverlay.addEventListener('click', closeMenu);
+
+        // Close menu when clicking on links
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                closeMenu();
+            });
+        });
+
+        // Close menu on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isMenuOpen) {
+                closeMenu();
+            }
+        });
+
+        // Prevent scroll when menu is open (iOS fix)
+        mobileMenu.addEventListener('touchmove', (e) => {
+            if (isMenuOpen) {
+                e.stopPropagation();
+            }
+        }, { passive: false });
+
+        // Scroll Progress Bar
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+        // Back to Top Button
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Button ripple effect
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255,255,255,0.4);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to { transform: scale(2); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Handle resize (close mobile menu on desktop)
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && isMenuOpen) {
+                closeMenu();
+            }
+        });
+    </script>
+</body>
+</html>

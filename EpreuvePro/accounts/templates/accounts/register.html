@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inscription - EpreuvesPro Bénin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #004E89;
+            --accent: #F7C548;
+            --bg: #FAFBFC;
+            --text: #1A1A2E;
+            --text-light: #64748B;
+            --error: #EF4444;
+            --success: #10B981;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--secondary) 0%, #0066CC 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .bg-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape-1 { top: 5%; left: 5%; width: 100px; height: 100px; background: var(--accent); border-radius: 50%; }
+        .shape-2 { top: 60%; right: 5%; width: 150px; height: 150px; background: var(--primary); border-radius: 30% 70% 70% 30%; animation-delay: -5s; }
+        .shape-3 { bottom: 5%; left: 15%; width: 80px; height: 80px; background: var(--white); transform: rotate(45deg); animation-delay: -10s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 480px;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--white);
+        }
+
+        .auth-title {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .auth-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .auth-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.4;
+            transition: all 0.3s;
+        }
+
+        .step.active {
+            opacity: 1;
+        }
+
+        .step.completed {
+            opacity: 1;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #E5E7EB;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-number,
+        .step.completed .step-number {
+            background: var(--primary);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .step.active .step-label {
+            color: var(--primary);
+        }
+
+        /* Form Steps */
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.375rem;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.85rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--error);
+            background: #FEF2F2;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 1.1rem;
+            padding: 0.25rem;
+        }
+
+        /* Select Styling */
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.875rem center;
+            padding-right: 2.5rem;
+        }
+
+        /* Password Strength */
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .password-strength.show {
+            display: block;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .strength-weak { width: 33%; background: var(--error); }
+        .strength-medium { width: 66%; background: var(--accent); }
+        .strength-strong { width: 100%; background: var(--success); }
+
+        .strength-text {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            color: var(--text-light);
+        }
+
+        /* Checkbox Group */
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: #F9FAFB;
+            border-radius: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .checkbox-group label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        .checkbox-group a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.875rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: #F3F4F6;
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn.loading {
+            color: transparent;
+            position: relative;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Alert */
+        .alert {
+            padding: 0.875rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .alert-error {
+            background: #FEF2F2;
+            color: var(--error);
+            border: 1px solid #FECACA;
+        }
+
+        /* Success Check */
+        .success-check {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1rem;
+            animation: scaleIn 0.5s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .success-check h3 {
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .success-check p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Footer */
+        .auth-footer {
+            text-align: center;
+            margin-top: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+
+        .auth-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1.25rem;
+                border-radius: 20px;
+            }
+
+            .progress-steps {
+                gap: 0.5rem;
+            }
+
+            .step-label {
+                display: none;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <a href="/" class="logo">
+                <div class="logo-icon">📚</div>
+                <span class="logo-text">EpreuvesPro</span>
+            </a>
+            <h1 class="auth-title">Crée ton compte 🚀</h1>
+            <p class="auth-subtitle">Rejoins 15,000+ élèves qui réussissent</p>
+        </div>
+
+        <div class="auth-card">
+            <!-- Progress -->
+            <div class="progress-steps">
+                <div class="step active" id="step1-indicator">
+                    <div class="step-number">1</div>
+                    <span class="step-label">Compte</span>
+                </div>
+                <div class="step" id="step2-indicator">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Profil</span>
+                </div>
+                <div class="step" id="step3-indicator">
+                    <div class="step-number">3</div>
+                    <span class="step-label">Confirmation</span>
+                </div>
+            </div>
+
+            <!-- Error Alert -->
+            <div class="alert alert-error" id="errorAlert" style="display: none;">
+                <span>⚠️</span>
+                <span id="errorText">Une erreur est survenue</span>
+            </div>
+
+            <form id="registerForm" method="POST" action="/accounts/register/">
+                {% csrf_token %}
+
+                <!-- Step 1: Account Info -->
+                <div class="form-step active" id="step1">
+                    <div class="form-group">
+                        <label class="form-label" for="fullname">Nom complet</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="fullname" name="fullname" class="form-input" placeholder="Jean Dupont" required>
+                            <span class="input-icon">👤</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="email" name="email" class="form-input" placeholder="jean@exemple.com" required>
+                            <span class="input-icon">📧</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="phone">Téléphone (WhatsApp)</label>
+                        <div class="input-wrapper">
+                            <input type="tel" id="phone" name="phone" class="form-input" placeholder="+229 01 23 45 67" required>
+                            <span class="input-icon">📱</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="password">Mot de passe</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+                            <span class="input-icon">🔒</span>
+                            <button type="button" class="password-toggle" onclick="togglePassword('password', this)">👁️</button>
+                        </div>
+                        <div class="password-strength" id="strengthBar">
+                            <div class="strength-bar"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText"></div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="nextStep(2)" style="width: 100%; margin-top: 0.5rem;">
+                        Continuer →
+                    </button>
+                </div>
+
+                <!-- Step 2: Profile -->
+                <div class="form-step" id="step2">
+                    <div class="form-group">
+                        <label class="form-label" for="niveau">Niveau</label>
+                        <div class="input-wrapper">
+                            <select id="niveau" name="niveau" class="form-input form-select" required onchange="updateClasses()">
+                                <option value="">Sélectionne ton niveau</option>
+                                <option value="college">Collège</option>
+                                <option value="lycee">Lycée</option>
+                            </select>
+                            <span class="input-icon">🎓</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="classe">Classe</label>
+                        <div class="input-wrapper">
+                            <select id="classe" name="classe" class="form-input form-select" required disabled>
+                                <option value="">Choisis d'abord le niveau</option>
+                            </select>
+                            <span class="input-icon">📚</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="etablissement">Établissement (optionnel)</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="etablissement" name="etablissement" class="form-input" placeholder="Nom de ton école">
+                            <span class="input-icon">🏫</span>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="newsletter" name="newsletter">
+                        <label for="newsletter">J'accepte de recevoir des conseils de révision et offres spéciales par email</label>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(1)">← Retour</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep(3)">Continuer →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Confirmation -->
+                <div class="form-step" id="step3">
+                    <div class="checkbox-group" style="background: #FEF3C7; border: 1px solid #FCD34D;">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">J'ai lu et j'accepte les <a href="/terms/">Conditions d'utilisation</a> et la <a href="/privacy/">Politique de confidentialité</a> *</label>
+                    </div>
+
+                    <div class="form-group" style="background: #F0FDF4; padding: 1rem; border-radius: 10px; margin: 1rem 0;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.5rem;">🎁</span>
+                            <div>
+                                <strong style="color: var(--success); font-size: 0.9rem;">Bonus de bienvenue !</strong>
+                                <p style="font-size: 0.85rem; color: var(--text-light); margin: 0;">3 épreuves gratuites à ton inscription</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep(2)">← Retour</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Créer mon compte ✨</button>
+                    </div>
+                </div>
+
+                <!-- Success State -->
+                <div class="form-step" id="stepSuccess">
+                    <div class="success-check">
+                        <div class="check-icon">✓</div>
+                        <h3>Compte créé avec succès !</h3>
+                        <p>Un email de confirmation a été envoyé à <strong id="successEmail"></strong></p>
+                        <a href="/dashboard/" class="btn btn-primary" style="width: 100%;">Accéder à mon tableau de bord →</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="auth-footer">
+            Déjà un compte ? <a href="/accounts/login/">Connecte-toi</a>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+
+        // Step Navigation
+        function nextStep(step) {
+            if (!validateStep(currentStep)) return;
+            
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${step}`).classList.add('active');
+            
+            // Update indicators
+            document.getElementById(`step${currentStep}-indicator`).classList.remove('active');
+            document.getElementById(`step${currentStep}-indicator`).classList.add('completed');
+            document.getElementById(`step${step}-indicator`).classList.add('active');
+            
+            currentStep = step;
+        }
+
+        function prevStep(step) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${step}`).classList.add('active');
+            
+            // Update indicators
+            document.getElementById(`step${currentStep}-indicator`).classList.remove('active');
+            document.getElementById(`step${step}-indicator`).classList.remove('completed');
+            document.getElementById(`step${step}-indicator`).classList.add('active');
+            
+            currentStep = step;
+        }
+
+        // Validation
+        function validateStep(step) {
+            const currentStepEl = document.getElementById(`step${step}`);
+            const inputs = currentStepEl.querySelectorAll('input[required], select[required]');
+            let valid = true;
+
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('error');
+                    valid = false;
+                } else {
+                    input.classList.remove('error');
+                }
+            });
+
+            if (!valid) {
+                showError('Veuillez remplir tous les champs obligatoires');
+            } else {
+                hideError();
+            }
+
+            return valid;
+        }
+
+        // Password Toggle
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            btn.textContent = type === 'password' ? '👁️' : '🙈';
+        }
+
+        // Password Strength
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+
+        passwordInput.addEventListener('input', function() {
+            const val = this.value;
+            if (val.length > 0) {
+                strengthBar.classList.add('show');
+                
+                let strength = 0;
+                if (val.length >= 8) strength++;
+                if (/[a-z]/.test(val) && /[A-Z]/.test(val)) strength++;
+                if (/[0-9]/.test(val)) strength++;
+                if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+                const bar = strengthBar.querySelector('.strength-bar');
+                bar.className = 'strength-bar';
+                
+                if (strength <= 1) {
+                    bar.classList.add('strength-weak');
+                    strengthText.textContent = 'Faible - Ajoute des majuscules et chiffres';
+                    strengthText.style.color = 'var(--error)';
+                } else if (strength === 2) {
+                    bar.classList.add('strength-medium');
+                    strengthText.textContent = 'Moyen - Ajoute des caractères spéciaux';
+                    strengthText.style.color = 'var(--accent)';
+                } else {
+                    bar.classList.add('strength-strong');
+                    strengthText.textContent = 'Fort ✓';
+                    strengthText.style.color = 'var(--success)';
+                }
+            } else {
+                strengthBar.classList.remove('show');
+            }
+        });
+
+        // Dynamic Class Selection
+        const classes = {
+            college: ['6ème', '5ème', '4ème', '3ème'],
+            lycee: ['2nde', '1ère', 'Terminale']
+        };
+
+        function updateClasses() {
+            const niveau = document.getElementById('niveau').value;
+            const classeSelect = document.getElementById('classe');
+            
+            classeSelect.innerHTML = '<option value="">Sélectionne ta classe</option>';
+            
+            if (niveau && classes[niveau]) {
+                classes[niveau].forEach(c => {
+                    const option = document.createElement('option');
+                    option.value = c.toLowerCase();
+                    option.textContent = c;
+                    classeSelect.appendChild(option);
+                });
+                classeSelect.disabled = false;
+            } else {
+                classeSelect.disabled = true;
+            }
+        }
+
+        // Error Handling
+        function showError(msg) {
+            document.getElementById('errorText').textContent = msg;
+            document.getElementById('errorAlert').style.display = 'flex';
+        }
+
+        function hideError() {
+            document.getElementById('errorAlert').style.display = 'none';
+        }
+
+        // Form Submit
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!document.getElementById('terms').checked) {
+                showError('Vous devez accepter les conditions d\'utilisation');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+
+            // Simulate API call
+            setTimeout(() => {
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('stepSuccess').classList.add('active');
+                document.getElementById('successEmail').textContent = document.getElementById('email').value;
+                
+                // Hide progress steps
+                document.querySelector('.progress-steps').style.display = 'none';
+            }, 2000);
+        });
+
+        // Clear errors on input
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('error');
+            });
+        });
+    </script>
+</body>
+</html>

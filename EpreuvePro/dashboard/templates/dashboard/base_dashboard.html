@@ -1,0 +1,713 @@
+<!-- templates/dashboard/base_dashboard.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}Dashboard - EpreuvesPro{% endblock %}</title>
+    <style>
+        /* ============================================
+           VARIABLES CSS & RESET
+           ============================================ */
+        :root {
+            --primary: #FF6B35;
+            --primary-dark: #E55A2B;
+            --secondary: #004E89;
+            --accent: #F7C548;
+            --bg: #f1f5f9;
+            --text: #1e293b;
+            --text-light: #64748B;
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 70px;
+            --header-height: 70px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ============================================
+           MOBILE MENU BUTTON
+           ============================================ */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            width: 48px;
+            height: 48px;
+            background: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+        }
+
+        /* ============================================
+           SIDEBAR
+           ============================================ */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--white);
+            border-right: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 999;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--secondary);
+            text-decoration: none;
+        }
+
+        .sidebar-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .user-mini-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: var(--radius);
+        }
+
+        .user-mini-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .user-mini-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .user-mini-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-mini-plan {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        /* Navigation */
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+            padding-left: 0.75rem;
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem;
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            font-size: 0.9rem;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .nav-link.active {
+            background: rgba(255, 107, 53, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .nav-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--primary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* ============================================
+           MAIN CONTENT
+           ============================================ */
+        .main-wrapper {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        .top-header {
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            gap: 1rem;
+        }
+
+        .page-title-section {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .page-title-section h1 {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .page-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .page-subtitle {
+                display: block;
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .search-box {
+            position: relative;
+            display: none;
+        }
+
+        @media (min-width: 640px) {
+            .search-box {
+                display: block;
+            }
+        }
+
+        .search-box input {
+            width: clamp(200px, 25vw, 300px);
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            background: #f8fafc;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--white);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .mobile-search-btn {
+            display: flex;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        @media (min-width: 640px) {
+            .mobile-search-btn {
+                display: none;
+            }
+        }
+
+        .notification-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            border: 1px solid #e2e8f0;
+            background: var(--white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            background: #EF4444;
+            color: white;
+            font-size: 0.65rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .main-content {
+            padding: clamp(1rem, 3vw, 2rem);
+        }
+
+        /* ============================================
+           MESSAGES
+           ============================================ */
+        .messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        .alert-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+
+        /* ============================================
+           RESPONSIVE BREAKPOINTS
+           ============================================ */
+
+        /* Tablet & Mobile */
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 85%;
+                max-width: 320px;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .mobile-overlay {
+                display: block;
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+            }
+
+            .top-header {
+                padding-left: 4.5rem;
+            }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 480px) {
+            .top-header {
+                padding: 0.75rem 1rem;
+                padding-left: 4rem;
+            }
+
+            .user-mini-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .user-mini-info {
+                text-align: center;
+            }
+
+            .nav-link {
+                padding: 1rem;
+            }
+
+            .main-content {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Large Desktop */
+        @media (min-width: 1400px) {
+            :root {
+                --sidebar-width: 300px;
+            }
+
+            .sidebar {
+                padding: 2rem;
+            }
+        }
+
+        /* Touch Device Optimizations */
+        @media (hover: none) {
+            .nav-link:hover {
+                background: transparent;
+            }
+
+            .nav-link:active {
+                background: rgba(255, 107, 53, 0.1);
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar, .top-header, .mobile-menu-btn {
+                display: none !important;
+            }
+
+            .main-wrapper {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Menu">
+        ☰
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'dashboard:home' %}" class="sidebar-logo">
+                <div class="sidebar-logo-icon">📚</div>
+                <span class="nav-text">EpreuvesPro</span>
+            </a>
+            
+            <div class="user-mini-profile">
+                <div class="user-mini-avatar">
+                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                </div>
+                <div class="user-mini-info">
+                    <div class="user-mini-name">{{ user.first_name }} {{ user.last_name|first }}.</div>
+                    <div class="user-mini-plan">
+                        {% if abonnement.plan == 'gratuit' %}
+                            🆓 Plan Gratuit
+                        {% elif abonnement.plan == 'mensuel' %}
+                            💳 Mensuel
+                        {% else %}
+                            💎 Annuel
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <nav>
+            <div class="nav-section">
+                <div class="nav-section-title">Menu principal</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Tableau de bord</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:epreuves' %}" class="nav-link {% if 'epreuves' in request.path %}active{% endif %}">
+                            <span class="nav-icon">📚</span>
+                            <span class="nav-text">Épreuves</span>
+                            <span class="nav-badge">2500+</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:downloads' %}" class="nav-link {% if 'downloads' in request.path %}active{% endif %}">
+                            <span class="nav-icon">📥</span>
+                            <span class="nav-text">Mes téléchargements</span>
+                            {% if downloads_count > 0 %}
+                                <span class="nav-badge">{{ downloads_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Compte</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:abonnement' %}" class="nav-link {% if 'abonnement' in request.path %}active{% endif %}">
+                            <span class="nav-icon">💎</span>
+                            <span class="nav-text">Mon abonnement</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard:profile' %}" class="nav-link {% if 'profil' in request.path %}active{% endif %}">
+                            <span class="nav-icon">👤</span>
+                            <span class="nav-text">Mon profil</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'accounts:logout' %}" class="nav-link">
+                            <span class="nav-icon">🚪</span>
+                            <span class="nav-text">Déconnexion</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="top-header">
+            <div class="page-title-section">
+                <h1>{% block dashboard_title %}Dashboard{% endblock %}</h1>
+                <p class="page-subtitle">{% block dashboard_subtitle %}{% endblock %}</p>
+            </div>
+            
+            <div class="header-actions">
+                <button class="mobile-search-btn" onclick="toggleSearch()">🔍</button>
+                
+                <div class="search-box" id="searchBox">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Rechercher..." id="globalSearch">
+                </div>
+                
+                <button class="notification-btn">
+                    🔔
+                    <span class="notification-badge">3</span>
+                </button>
+            </div>
+        </header>
+        
+        <main class="main-content">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            <span>
+                                {% if message.tags == 'success' %}✓
+                                {% elif message.tags == 'error' %}✕
+                                {% elif message.tags == 'warning' %}⚠
+                                {% else %}ℹ
+                                {% endif %}
+                            </span>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% block dashboard_content %}{% endblock %}
+        </main>
+    </div>
+
+    <script>
+        // Toggle Sidebar on Mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.mobile-overlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            // Prevent body scroll when sidebar is open
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        // Toggle Search on Mobile
+        function toggleSearch() {
+            const searchBox = document.getElementById('searchBox');
+            searchBox.style.display = searchBox.style.display === 'block' ? 'none' : 'block';
+            
+            if (searchBox.style.display === 'block') {
+                searchBox.querySelector('input').focus();
+            }
+        }
+
+        // Close sidebar when clicking on a link (mobile)
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1024) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 1024) {
+                document.getElementById('sidebar').classList.remove('open');
+                document.querySelector('.mobile-overlay').classList.remove('active');
+                document.body.style.overflow = '';
+                document.getElementById('searchBox').style.display = '';
+            }
+        });
+
+        // Global search functionality
+        document.getElementById('globalSearch')?.addEventListener('input', function(e) {
+            console.log('Recherche:', e.target.value);
+            // Implement global search
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

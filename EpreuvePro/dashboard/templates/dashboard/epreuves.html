@@ -1,0 +1,461 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Épreuves - EpreuvesPro{% endblock %}
+{% block dashboard_title %}📚 Épreuves disponibles{% endblock %}
+{% block dashboard_subtitle %}Trouve les épreuves pour ta classe{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .search-filters {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .filter-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #64748B;
+        margin-bottom: 0.5rem;
+    }
+    
+    .filter-group select,
+    .filter-group input {
+        width: 100%;
+        padding: 0.625rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .search-btn {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #FF6B35, #E55A2B);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(255, 107, 53, 0.3);
+    }
+    
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .results-count {
+        color: #64748B;
+        font-size: 0.9rem;
+    }
+    
+    .sort-select {
+        padding: 0.5rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: white;
+    }
+    
+    .epreuves-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .epreuve-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+        position: relative;
+    }
+    
+    .epreuve-card:hover {
+        border-color: #FF6B35;
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }
+    
+    .epreuve-card.has-corrige {
+        border-color: #22c55e;
+    }
+    
+    .epreuve-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+    
+    .epreuve-matiere {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.375rem 0.75rem;
+        background: #f1f5f9;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #475569;
+    }
+    
+    .epreuve-badge {
+        padding: 0.25rem 0.625rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    
+    .epreuve-badge.bepc {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .epreuve-badge.bac {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .epreuve-badge.devoir {
+        background: #f3e8ff;
+        color: #7c3aed;
+    }
+    
+    .epreuve-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+    }
+    
+    .epreuve-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: #64748B;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .epreuve-meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .epreuve-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .btn-epreuve {
+        flex: 1;
+        padding: 0.625rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+    }
+    
+    .btn-download {
+        background: #FF6B35;
+        color: white;
+        border-color: #FF6B35;
+    }
+    
+    .btn-download:hover {
+        background: #E55A2B;
+    }
+    
+    .btn-download:disabled {
+        background: #f1f5f9;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+    
+    .btn-corrige {
+        background: white;
+        color: #22c55e;
+        border-color: #22c55e;
+    }
+    
+    .btn-corrige:hover:not(:disabled) {
+        background: #22c55e;
+        color: white;
+    }
+    
+    .btn-corrige:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .epreuve-locked {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+    
+    .locked-icon {
+        font-size: 2rem;
+    }
+    
+    .locked-text {
+        font-size: 0.875rem;
+        color: #64748B;
+        text-align: center;
+    }
+    
+    .locked-btn {
+        padding: 0.5rem 1rem;
+        background: #FF6B35;
+        color: white;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    /* Empty & Loading States */
+    .epreuves-empty {
+        text-align: center;
+        padding: 4rem;
+        background: white;
+        border-radius: 16px;
+    }
+    
+    .epreuves-empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+    
+    .epreuves-loading {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .skeleton-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 200px;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<!-- Search Section -->
+<div class="search-section">
+    <form method="get" action="{% url 'dashboard:epreuves' %}">
+        <div class="search-filters">
+            <div class="filter-group">
+                <label>Classe</label>
+                <select name="classe" id="classeFilter">
+                    <option value="">Toutes les classes</option>
+                    {% for classe in classes_list %}
+                    <option value="{{ classe }}" {% if selected_classe == classe %}selected{% endif %}>
+                        {{ classe }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Matière</label>
+                <select name="matiere" id="matiereFilter">
+                    <option value="">Toutes les matières</option>
+                    {% for matiere in matieres_list %}
+                    <option value="{{ matiere }}" {% if selected_matiere == matiere %}selected{% endif %}>
+                        {{ matiere }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Année</label>
+                <select name="annee" id="anneeFilter">
+                    <option value="">Toutes les années</option>
+                    {% for annee in annees_list %}
+                    <option value="{{ annee }}" {% if selected_annee == annee %}selected{% endif %}>
+                        {{ annee }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Type</label>
+                <select name="type" id="typeFilter">
+                    <option value="">Tous les types</option>
+                    <option value="devoir" {% if selected_type == 'devoir' %}selected{% endif %}>Devoir</option>
+                    <option value="bepc" {% if selected_type == 'bepc' %}selected{% endif %}>BEPC</option>
+                    <option value="bac" {% if selected_type == 'bac' %}selected{% endif %}>BAC</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <input type="text" name="q" placeholder="🔍 Rechercher par titre..." 
+                   value="{{ search_query }}" 
+                   style="flex: 1; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <button type="submit" class="search-btn">🔍 Rechercher</button>
+        </div>
+    </form>
+</div>
+
+<!-- Results -->
+<div class="results-header">
+    <span class="results-count">
+        {% if epreuves_count %}
+            {{ epreuves_count }} épreuve{{ epreuves_count|pluralize }} trouvée{{ epreuves_count|pluralize }}
+        {% else %}
+            Aucune épreuve trouvée
+        {% endif %}
+    </span>
+    
+    <select class="sort-select" name="sort" onchange="this.form.submit()">
+        <option value="recent">Plus récentes</option>
+        <option value="ancien">Plus anciennes</option>
+        <option value="matiere">Par matière</option>
+    </select>
+</div>
+
+{% if epreuves %}
+    <div class="epreuves-grid">
+        {% for epreuve in epreuves %}
+        <div class="epreuve-card {% if epreuve.has_corrige %}has-corrige{% endif %}">
+            <div class="epreuve-header">
+                <span class="epreuve-matiere">
+                    📚 {{ epreuve.matiere }}
+                </span>
+                <span class="epreuve-badge {{ epreuve.type|lower }}">
+                    {{ epreuve.get_type_display|default:epreuve.type }}
+                </span>
+            </div>
+            
+            <h3 class="epreuve-title">{{ epreuve.title }}</h3>
+            
+            <div class="epreuve-meta">
+                <span>🎓 {{ epreuve.classe }}</span>
+                <span>📅 {{ epreuve.annee }}</span>
+                <span>📄 {{ epreuve.nombre_pages|default:"?" }} pages</span>
+            </div>
+            
+            <div class="epreuve-actions">
+                <button class="btn-epreuve btn-download" 
+                        onclick="downloadEpreuve({{ epreuve.id }})"
+                        {% if not can_download %}disabled{% endif %}>
+                    ⬇️ Épreuve
+                    {% if not is_premium and not epreuve.is_free %}
+                        (25 FCFA)
+                    {% endif %}
+                </button>
+                
+                <button class="btn-epreuve btn-corrige"
+                        onclick="downloadCorrige({{ epreuve.id }})"
+                        {% if not epreuve.has_corrige or not can_download %}disabled{% endif %}>
+                    ✅ Corrigé
+                    {% if not is_premium and epreuve.has_corrige %}
+                        (25 FCFA)
+                    {% endif %}
+                </button>
+            </div>
+            
+            {% if not can_download and not epreuve.is_free %}
+            <div class="epreuve-locked">
+                <span class="locked-icon">🔒</span>
+                <span class="locked-text">Limite atteinte</span>
+                <a href="{% url 'dashboard:abonnement' %}" class="locked-btn">Passer Premium</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if epreuves.has_other_pages %}
+    <div class="pagination" style="margin-top: 2rem;">
+        {% if epreuves.has_previous %}
+            <a href="?page={{ epreuves.previous_page_number }}" class="page-btn">← Précédent</a>
+        {% endif %}
+        
+        {% for num in epreuves.paginator.page_range %}
+            {% if epreuves.number == num %}
+                <span class="page-btn active">{{ num }}</span>
+            {% else %}
+                <a href="?page={{ num }}" class="page-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if epreuves.has_next %}
+            <a href="?page={{ epreuves.next_page_number }}" class="page-btn">Suivant →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+{% else %}
+    <div class="epreuves-empty">
+        <div class="epreuves-empty-icon">🔍</div>
+        <h3>Aucune épreuve trouvée</h3>
+        <p>Essaye de modifier tes critères de recherche ou <a href="{% url 'dashboard:epreuves' %}" style="color: #FF6B35;">voir toutes les épreuves</a></p>
+    </div>
+{% endif %}
+
+<script>
+function downloadEpreuve(epreuveId) {
+    if (confirm('Confirmer le téléchargement de cette épreuve ?')) {
+        // window.location.href = `/download/epreuve/${epreuveId}/`;
+        alert('Téléchargement de l\'épreuve ' + epreuveId + ' (à implémenter)');
+    }
+}
+
+function downloadCorrige(epreuveId) {
+    if (confirm('Confirmer le téléchargement du corrigé ?')) {
+        // window.location.href = `/download/corrige/${epreuveId}/`;
+        alert('Téléchargement du corrigé ' + epreuveId + ' (à implémenter)');
+    }
+}
+</script>
+{% endblock %}
