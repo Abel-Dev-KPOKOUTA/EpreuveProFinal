@@ -1,22 +1,19 @@
-# apps/accounts/managers.py
-
 from django.contrib.auth.models import BaseUserManager
+from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
     """
     Manager personnalisé pour le modèle User
-    Gère la création d'utilisateurs avec email comme identifiant
     """
-    
     use_in_migrations = True
     
     def _create_user(self, email, password, **extra_fields):
         """
-        Crée et sauvegarde un utilisateur avec l'email donné
+        Crée et sauvegarde un utilisateur avec email et password
         """
         if not email:
-            raise ValueError('L\'email doit être renseigné')
+            raise ValueError('L\'adresse email doit être renseignée')
         
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
@@ -31,10 +28,23 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
         extra_fields.setdefault('is_student', True)
+        extra_fields.setdefault('is_teacher', False)
         
-        # Générer un username à partir de l'email (requis par Django)
-        if 'username' not in extra_fields:
-            extra_fields['username'] = email
+        if extra_fields.get('is_staff') is True:
+            raise ValueError('Un utilisateur standard ne peut pas être staff.')
+        if extra_fields.get('is_superuser') is True:
+            raise ValueError('Un utilisateur standard ne peut pas être superuser.')
+        
+        return self._create_user(email, password, **extra_fields)
+    
+    def create_teacher(self, email, password=None, **extra_fields):
+        """
+        Crée un compte enseignant
+        """
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault('is_student', False)
+        extra_fields.setdefault('is_teacher', True)
         
         return self._create_user(email, password, **extra_fields)
     
@@ -46,10 +56,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_student', False)
-        
-        # Générer un username à partir de l'email
-        if 'username' not in extra_fields:
-            extra_fields['username'] = email
+        extra_fields.setdefault('is_teacher', False)
         
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Le superutilisateur doit avoir is_staff=True.')
