@@ -271,11 +271,6 @@ def calculate_profile_completion(user):
 
 
 
-
-
-
-
-
 # dashboard/views.py (ajouter ces imports et fonctions)
 
 

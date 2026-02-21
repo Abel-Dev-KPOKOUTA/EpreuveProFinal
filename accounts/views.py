@@ -1,5 +1,3 @@
-# apps/accounts/views.py (OPTIMISÉ)
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -9,6 +7,12 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from .forms import UserRegistrationForm, UserLoginForm
+
+from dashboard.models import Abonnement, UserStats
+
+# Modèles d'epreuves (pour les téléchargements et matières)
+from epreuves.models import Telechargement, Matiere
+
 
 
 @require_http_methods(["GET", "POST"])
@@ -123,23 +127,84 @@ def logout_view(request):
     return redirect('accounts:login')
 
 
+
+
+
+
+
+
+
 @login_required
 def profile_view(request):
     """Vue du profil utilisateur"""
     user = request.user
     
-    # ✅ Récupérer l'abonnement actif via la méthode du modèle
-    subscription = user.get_subscription()
+    # Récupérer ou créer l'abonnement
+    abonnement, _ = Abonnement.objects.get_or_create(
+        user=user,
+        defaults={'plan': 'gratuit', 'telechargements_inclus': 3}
+    )
     
-    # ✅ Stats pour le dashboard
+    # Récupérer les stats
+    stats, _ = UserStats.objects.get_or_create(
+        user=user,
+        defaults={'total_downloads': 0}
+    )
+    
+    # Téléchargements récents
+    recent_downloads = Telechargement.objects.filter(
+        user=user
+    ).select_related('epreuve', 'epreuve__matiere').order_by('-date_telechargement')[:10]
+    
+    # Matière favorite
+    favorite_matiere = None
+    if stats.favorite_matiere:
+        try:
+            favorite_matiere = Matiere.objects.get(nom=stats.favorite_matiere)
+        except Matiere.DoesNotExist:
+            pass
+    
     context = {
         'user': user,
-        'subscription': subscription,
-        'downloads_this_month': user.get_downloads_count_this_month(),
-        'activities': user.activities.all()[:10],  # 10 dernières activités
+        'abonnement': abonnement,
+        'stats': stats,
+        'recent_downloads': recent_downloads,
+        'favorite_matiere': favorite_matiere,
+        'downloads_remaining': abonnement.telechargements_restant(),
     }
     
     return render(request, 'accounts/profile.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_profile_view(request):
+    """Mise à jour du profil"""
+    user = request.user
+    
+    # Mise à jour des champs autorisés
+    allowed_fields = ['first_name', 'last_name', 'phone', 'school', 'class_level']
+    for field in allowed_fields:
+        if field in request.POST:
+            setattr(user, field, request.POST[field])
+    
+    # Mise à jour de l'avatar
+    if 'avatar' in request.FILES:
+        user.avatar = request.FILES['avatar']
+    
+    user.save()
+    user.update_last_activity()
+    
+    messages.success(request, 'Profil mis à jour avec succès !')
+    return redirect('accounts:profile')
+
+
+
+
+
+
+
+
 
 
 @login_required
@@ -219,3 +284,9 @@ def resend_verification_email(request):
     
     messages.success(request, 'Un nouvel email de vérification a été envoyé.')
     return redirect('accounts:profile')
+
+
+
+
+
+
