@@ -6,7 +6,7 @@ from django.db.models import Q, Avg
 from django.core.paginator import Paginator
 
 from .models import Livre, Categorie, AchatLivre, Lecture, Avis
-from apps.dashboard.models import Abonnement
+from dashboard.models import Abonnement
 
 
 def bibliotheque(request):

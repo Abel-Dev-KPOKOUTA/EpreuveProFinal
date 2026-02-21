@@ -1,636 +1,592 @@
-{% extends 'dashboard/base_dashboard.html' %}
+<!-- apps/dashboard/templates/dashboard/home.html -->
+{% extends 'base.html' %}
 
-{% block title %}Tableau de bord - EpreuvesPro{% endblock %}
-{% block dashboard_title %}Bonjour, {{ user.first_name }} ! 👋{% endblock %}
-{% block dashboard_subtitle %}Voici ton activité sur la plateforme{% endblock %}
+{% block title %}Tableau de bord - EpreuvesPro Bénin{% endblock %}
 
-{% block extra_css %}
-<style>
-    /* Welcome Card */
-    .welcome-card {
-        background: linear-gradient(135deg, #004E89 0%, #0066CC 100%);
-        color: white;
-        padding: clamp(1.25rem, 4vw, 2rem);
-        border-radius: var(--radius-lg);
-        margin-bottom: clamp(1rem, 3vw, 2rem);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .welcome-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: clamp(150px, 30vw, 300px);
-        height: clamp(150px, 30vw, 300px);
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-    }
-
-    .welcome-content {
-        position: relative;
-        z-index: 1;
-    }
-
-    .welcome-card h2 {
-        font-size: clamp(1.1rem, 3vw, 1.5rem);
-        margin-bottom: 0.5rem;
-    }
-
-    .welcome-card p {
-        opacity: 0.9;
-        margin-bottom: 1.25rem;
-        max-width: 600px;
-        font-size: clamp(0.875rem, 2vw, 1rem);
-    }
-
-    .btn-accent {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: clamp(0.625rem, 2vw, 0.875rem) clamp(1rem, 3vw, 1.5rem);
-        background: var(--primary);
-        color: white;
-        text-decoration: none;
-        border-radius: var(--radius);
-        font-weight: 600;
-        font-size: clamp(0.875rem, 2vw, 1rem);
-        transition: var(--transition);
-    }
-
-    .btn-accent:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
-    }
-
-    /* Stats Grid */
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
-        gap: clamp(0.75rem, 2vw, 1.5rem);
-        margin-bottom: clamp(1rem, 3vw, 2rem);
-    }
-
-    .stat-card {
-        background: var(--white);
-        padding: clamp(1rem, 3vw, 1.5rem);
-        border-radius: var(--radius-lg);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        transition: var(--transition);
-    }
-
-    .stat-card:hover {
-        box-shadow: var(--shadow-lg);
-        transform: translateY(-2px);
-    }
-
-    .stat-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-    }
-
-    .stat-icon {
-        width: clamp(40px, 8vw, 48px);
-        height: clamp(40px, 8vw, 48px);
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(1.25rem, 3vw, 1.5rem);
-    }
-
-    .stat-icon.orange { background: #fff7ed; }
-    .stat-icon.blue { background: #eff6ff; }
-    .stat-icon.green { background: #f0fdf4; }
-    .stat-icon.purple { background: #faf5ff; }
-
-    .stat-number {
-        font-size: clamp(1.5rem, 4vw, 2rem);
-        font-weight: 700;
-        color: var(--text);
-        margin-bottom: 0.25rem;
-    }
-
-    .stat-label {
-        color: var(--text-light);
-        font-size: clamp(0.8rem, 2vw, 0.9rem);
-    }
-
-    /* Progress Bar */
-    .progress-section {
-        margin-top: 1rem;
-    }
-
-    .progress-header {
-        display: flex;
-        justify-content: space-between;
-        font-size: clamp(0.75rem, 2vw, 0.875rem);
-        margin-bottom: 0.5rem;
-    }
-
-    .progress-bar {
-        height: 8px;
-        background: #e2e8f0;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-
-    .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--primary), var(--accent));
-        border-radius: 4px;
-        transition: width 0.5s ease;
-    }
-
-    /* Dashboard Columns */
-    .dashboard-columns {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-        gap: clamp(1rem, 3vw, 1.5rem);
-    }
-
-    @media (min-width: 1024px) {
-        .dashboard-columns {
-            grid-template-columns: 2fr 1fr;
-        }
-    }
-
-    /* Section Cards */
-    .section-card {
-        background: var(--white);
-        border-radius: var(--radius-lg);
-        padding: clamp(1rem, 3vw, 1.5rem);
-        margin-bottom: clamp(1rem, 3vw, 1.5rem);
-    }
-
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.25rem;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .section-title {
-        font-size: clamp(1rem, 2.5vw, 1.125rem);
-        font-weight: 700;
-        color: var(--text);
-    }
-
-    .section-link {
-        color: var(--primary);
-        text-decoration: none;
-        font-size: clamp(0.8rem, 2vw, 0.875rem);
-        font-weight: 500;
-    }
-
-    /* Quick Actions */
-    .quick-actions {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
-        gap: clamp(0.5rem, 2vw, 1rem);
-    }
-
-    .action-card {
-        background: #f8fafc;
-        padding: clamp(1rem, 3vw, 1.25rem);
-        border-radius: var(--radius);
-        text-align: center;
-        cursor: pointer;
-        transition: var(--transition);
-        border: 2px solid transparent;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .action-card:hover {
-        background: var(--white);
-        border-color: var(--primary);
-        box-shadow: var(--shadow);
-    }
-
-    .action-icon {
-        width: clamp(40px, 8vw, 48px);
-        height: clamp(40px, 8vw, 48px);
-        background: var(--white);
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 0.75rem;
-        font-size: clamp(1.25rem, 3vw, 1.5rem);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-
-    .action-title {
-        font-weight: 600;
-        color: var(--text);
-        margin-bottom: 0.25rem;
-        font-size: clamp(0.85rem, 2vw, 0.9rem);
-    }
-
-    .action-desc {
-        font-size: clamp(0.7rem, 1.5vw, 0.75rem);
-        color: var(--text-light);
-    }
-
-    /* Activity List */
-    .activity-list {
-        list-style: none;
-    }
-
-    .activity-item {
-        display: flex;
-        align-items: center;
-        gap: clamp(0.75rem, 2vw, 1rem);
-        padding: clamp(0.75rem, 2vw, 1rem) 0;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-
-    .activity-icon {
-        width: clamp(36px, 7vw, 40px);
-        height: clamp(36px, 7vw, 40px);
-        background: #f1f5f9;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(1rem, 2.5vw, 1.25rem);
-        flex-shrink: 0;
-    }
-
-    .activity-content {
-        flex: 1;
-        min-width: 0;
-    }
-
-    .activity-title {
-        font-weight: 500;
-        color: var(--text);
-        font-size: clamp(0.85rem, 2vw, 0.9rem);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .activity-meta {
-        font-size: clamp(0.7rem, 1.5vw, 0.75rem);
-        color: #94a3b8;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: clamp(2rem, 5vw, 3rem);
-        color: #94a3b8;
-    }
-
-    .empty-state-icon {
-        font-size: clamp(2rem, 5vw, 3rem);
-        margin-bottom: 1rem;
-    }
-
-    /* Upgrade Card */
-    .upgrade-card {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        color: white;
-        padding: clamp(1.25rem, 4vw, 1.5rem);
-        border-radius: var(--radius-lg);
-        text-align: center;
-    }
-
-    .upgrade-card h3 {
-        font-size: clamp(1.1rem, 2.5vw, 1.25rem);
-        margin-bottom: 0.5rem;
-    }
-
-    .upgrade-card p {
-        opacity: 0.9;
-        margin-bottom: 1.25rem;
-        font-size: clamp(0.875rem, 2vw, 0.9rem);
-    }
-
-    .btn-white {
-        display: inline-block;
-        padding: clamp(0.625rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
-        background: var(--white);
-        color: var(--primary);
-        text-decoration: none;
-        border-radius: var(--radius);
-        font-weight: 600;
-        font-size: clamp(0.875rem, 2vw, 0.9rem);
-    }
-
-    /* Favorite Subject */
-    .favorite-subject {
-        background: #f0fdf4;
-        border: 1px solid #86efac;
-        padding: clamp(0.75rem, 2vw, 1rem);
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        gap: clamp(0.75rem, 2vw, 1rem);
-    }
-
-    .favorite-icon {
-        width: clamp(40px, 8vw, 48px);
-        height: clamp(40px, 8vw, 48px);
-        background: #22c55e;
-        color: white;
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(1.25rem, 3vw, 1.5rem);
-        flex-shrink: 0;
-    }
-
-    .favorite-content h4 {
-        color: #166534;
-        font-size: clamp(0.8rem, 2vw, 0.875rem);
-        margin-bottom: 0.25rem;
-    }
-
-    .favorite-content p {
-        color: #15803d;
-        font-weight: 600;
-        font-size: clamp(0.9rem, 2vw, 1rem);
-    }
-
-    /* Profile Completion */
-    .progress-card {
-        background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
-        border: 1px solid #86efac;
-    }
-
-    .progress-header {
-        display: flex;
-        align-items: center;
-        gap: clamp(0.75rem, 2vw, 1rem);
-        margin-bottom: 1rem;
-    }
-
-    .progress-icon {
-        width: clamp(40px, 8vw, 48px);
-        height: clamp(40px, 8vw, 48px);
-        background: #22c55e;
-        color: white;
-        border-radius: var(--radius);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(1.25rem, 3vw, 1.5rem);
-        flex-shrink: 0;
-    }
-
-    .progress-info h4 {
-        color: #166534;
-        margin-bottom: 0.25rem;
-        font-size: clamp(0.9rem, 2vw, 1rem);
-    }
-
-    .progress-info p {
-        color: #15803d;
-        font-size: clamp(0.8rem, 2vw, 0.875rem);
-    }
-
-    .progress-bar-large {
-        height: clamp(8px, 2vw, 12px);
-        background: #dcfce7;
-        border-radius: 6px;
-        overflow: hidden;
-    }
-
-    .progress-fill-large {
-        height: 100%;
-        background: linear-gradient(90deg, #22c55e, #16a34a);
-        border-radius: 6px;
-        transition: width 0.5s ease;
-    }
-
-    .progress-steps {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 1rem;
-        font-size: clamp(0.65rem, 1.5vw, 0.8rem);
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .progress-step {
-        text-align: center;
-        color: #94a3b8;
-    }
-
-    .progress-step.completed {
-        color: #16a34a;
-        font-weight: 600;
-    }
-</style>
-{% endblock %}
-
-{% block dashboard_content %}
-<!-- Welcome Card -->
-<div class="welcome-card">
-    <div class="welcome-content">
-        <h2>🎯 Prêt pour la révision ?</h2>
-        <p>
-            {% if abonnement.plan == 'gratuit' %}
-                Tu as <strong>{{ downloads_remaining }} téléchargement{{ downloads_remaining|pluralize }} gratuit{{ downloads_remaining|pluralize }}</strong> restant{{ downloads_remaining|pluralize }} ce mois.
-            {% else %}
-                Ton abonnement <strong>{{ plan_name }}</strong> est actif. Profite de tes téléchargements illimités !
-            {% endif %}
-        </p>
-        <a href="{% url 'dashboard:epreuves' %}" class="btn-accent">
-            🔍 Explorer les épreuves →
-        </a>
-    </div>
-</div>
-
-<!-- Stats Grid -->
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-header">
-            <div class="stat-icon orange">📥</div>
-        </div>
-        <div class="stat-number">{{ downloads_count }}</div>
-        <div class="stat-label">Total téléchargements</div>
-        
-        {% if abonnement.plan == 'gratuit' %}
-        <div class="progress-section">
-            <div class="progress-header">
-                <span>Gratuit utilisé</span>
-                <span>{{ free_downloads_used }}/{{ free_downloads_total }}</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: {{ usage_percentage }}%"></div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
+{% block content %}
+<div class="dashboard-container">
     
-    <div class="stat-card">
-        <div class="stat-header">
-            <div class="stat-icon blue">📚</div>
+    <!-- Header de bienvenue -->
+    <div class="welcome-header">
+        <div class="welcome-text">
+            <h1>Bonjour {{ user.get_display_name }} ! 👋</h1>
+            <p>Prêt pour vos révisions ? Voici votre progression pour l'année scolaire <strong>{{ annee_scolaire }}</strong></p>
         </div>
-        <div class="stat-number">{{ epreuves_available }}+</div>
-        <div class="stat-label">Épreuves disponibles</div>
-    </div>
-    
-    <div class="stat-card">
-        <div class="stat-header">
-            <div class="stat-icon green">✅</div>
-        </div>
-        <div class="stat-number">{{ corriges_available }}+</div>
-        <div class="stat-label">Corrigés détaillés</div>
-    </div>
-    
-    <div class="stat-card">
-        <div class="stat-header">
-            <div class="stat-icon {% if is_premium %}purple{% else %}red{% endif %}">
-                {% if is_premium %}💎{% else %}🆓{% endif %}
+        <div class="welcome-stats">
+            <div class="stat-badge">
+                <span class="stat-icon">📅</span>
+                <span class="stat-text">Système {{ systeme_scolaire }}</span>
             </div>
         </div>
-        <div class="stat-number">{{ plan_name }}</div>
-        <div class="stat-label">
-            {% if is_premium %}
-                Jusqu'au {{ abonnement.date_fin|date:"d/m/Y"|default:"Illimité" }}
-            {% else %}
-                {{ downloads_remaining }} restant{{ downloads_remaining|pluralize }}
-            {% endif %}
-        </div>
     </div>
-</div>
 
-<!-- Two Columns Layout -->
-<div class="dashboard-columns">
-    <!-- Left Column -->
-    <div>
-        <!-- Quick Actions -->
-        <div class="section-card">
-            <div class="section-header">
-                <h3 class="section-title">⚡ Actions rapides</h3>
+    <!-- Stats rapides -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon-bg" style="background: #dbeafe;">
+                <span>📥</span>
             </div>
-            <div class="quick-actions">
-                <a href="{% url 'dashboard:epreuves' %}" class="action-card">
-                    <div class="action-icon">🔍</div>
-                    <div class="action-title">Rechercher</div>
-                    <div class="action-desc">Parcourir par matière</div>
-                </a>
-                
-                <a href="{% url 'dashboard:downloads' %}" class="action-card">
-                    <div class="action-icon">📂</div>
-                    <div class="action-title">Mes fichiers</div>
-                    <div class="action-desc">{{ downloads_count }} document{{ downloads_count|pluralize }}</div>
-                </a>
-                
-                <a href="{% url 'dashboard:abonnement' %}" class="action-card">
-                    <div class="action-icon">⬆️</div>
-                    <div class="action-title">Premium</div>
-                    <div class="action-desc">Passer à l'illimité</div>
-                </a>
-                
-                <a href="{% url 'dashboard:profile' %}" class="action-card">
-                    <div class="action-icon">⚙️</div>
-                    <div class="action-title">Profil</div>
-                    <div class="action-desc">Modifier mes infos</div>
-                </a>
+            <div class="stat-info">
+                <h3>{{ stats.total_downloads }}</h3>
+                <p>Téléchargements</p>
             </div>
         </div>
         
-        <!-- Recent Activity -->
-        <div class="section-card">
-            <div class="section-header">
-                <h3 class="section-title">🕐 Activité récente</h3>
-                <a href="{% url 'dashboard:downloads' %}" class="section-link">Voir tout →</a>
+        <div class="stat-card">
+            <div class="stat-icon-bg" style="background: #fef3c7;">
+                <span>📅</span>
             </div>
+            <div class="stat-info">
+                <h3>{{ stats.this_month }}</h3>
+                <p>Ce mois</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon-bg" style="background: #d1fae5;">
+                <span>💾</span>
+            </div>
+            <div class="stat-info">
+                <h3>{{ downloads_remaining }}</h3>
+                <p>Restants</p>
+            </div>
+        </div>
+        
+        <div class="stat-card premium">
+            <div class="stat-icon-bg" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);">
+                <span>👑</span>
+            </div>
+            <div class="stat-info">
+                <h3>{{ abonnement.get_plan_display }}</h3>
+                <p>Abonnement</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="dashboard-grid">
+        
+        <!-- Colonne gauche -->
+        <div class="dashboard-main">
             
-            {% if recent_downloads %}
-                <ul class="activity-list">
-                    {% for download in recent_downloads %}
-                    <li class="activity-item">
-                        <div class="activity-icon">📄</div>
-                        <div class="activity-content">
-                            <div class="activity-title">{{ download.epreuve_title }}</div>
-                            <div class="activity-meta">
-                                {{ download.matiere }} • {{ download.classe }} • {{ download.downloaded_at|timesince }}
-                            </div>
+            <!-- Accès rapide par période -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>📚 Accès rapide par période</h3>
+                    <span class="badge-semestre">{{ annee_scolaire }}</span>
+                </div>
+                
+                <div class="periodes-grid">
+                    {% for periode in periodes %}
+                    <a href="{% url 'epreuves:liste' %}?periode={{ periode.id }}" class="periode-card">
+                        <div class="periode-num">{{ periode.numero }}</div>
+                        <div class="periode-info">
+                            <h4>{{ periode.nom }}</h4>
+                            <p>{{ periode.mois_debut }} - {{ periode.mois_fin }}</p>
+                            <span class="periode-count">{{ periode.count }} épreuves</span>
                         </div>
-                    </li>
+                    </a>
                     {% endfor %}
-                </ul>
-            {% else %}
-                <div class="empty-state">
-                    <div class="empty-state-icon">📭</div>
-                    <p>Aucune activité récente</p>
-                    <p style="font-size: 0.875rem; margin-top: 0.5rem;">
-                        <a href="{% url 'dashboard:epreuves' %}" style="color: var(--primary);">Télécharger votre première épreuve →</a>
+                    
+                    <a href="{% url 'epreuves:liste' %}?type_epreuve=bepc" class="periode-card examen">
+                        <div class="periode-num">🎓</div>
+                        <div class="periode-info">
+                            <h4>Examens Officiels</h4>
+                            <p>BEPC, Bac, CEPED</p>
+                            <span class="periode-count">Voir tout</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Derniers téléchargements -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>⏱️ Derniers téléchargements</h3>
+                    <a href="{% url 'dashboard:downloads' %}" class="btn-link">Voir tout</a>
+                </div>
+                
+                {% if recent_downloads %}
+                <div class="downloads-list">
+                    {% for dl in recent_downloads %}
+                    <div class="download-item">
+                        <div class="dl-icon" style="background: {{ dl.epreuve.matiere.couleur }}20; color: {{ dl.epreuve.matiere.couleur }}">
+                            {{ dl.epreuve.matiere.icon }}
+                        </div>
+                        <div class="dl-info">
+                            <h4>{{ dl.epreuve.matiere.nom }}</h4>
+                            <p>{{ dl.epreuve.get_type_epreuve_display }} • {{ dl.epreuve.classe.nom }}</p>
+                            <span class="dl-date">{{ dl.date_telechargement|date:"d/m/Y" }}</span>
+                        </div>
+                        <a href="{{ dl.epreuve.get_absolute_url }}" class="btn-revoir">↻</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-small">
+                    <p>Aucun téléchargement encore</p>
+                    <a href="{% url 'epreuves:liste' %}" class="btn-primary">Explorer les épreuves</a>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Colonne droite -->
+        <div class="dashboard-sidebar">
+            
+            <!-- Mon abonnement -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>💳 Mon abonnement</h3>
+                </div>
+                <div class="abonnement-info">
+                    <div class="plan-badge plan-{{ abonnement.plan }}">
+                        {{ abonnement.get_plan_display }}
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ usage_percentage }}%"></div>
+                    </div>
+                    
+                    <p class="progress-text">
+                        {{ abonnement.telechargements_utilises }} / {{ abonnement.telechargements_inclus }} téléchargements utilisés
                     </p>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-    
-    <!-- Right Column -->
-    <div>
-        <!-- Upgrade Card (si gratuit) -->
-        {% if abonnement.plan == 'gratuit' %}
-        <div class="upgrade-card" style="margin-bottom: 1.5rem;">
-            <h3>⬆️ Passer Premium</h3>
-            <p>Débloque l'accès illimité aux corrigés détaillés et à 2500+ épreuves.</p>
-            <a href="{% url 'dashboard:abonnement' %}" class="btn-white">
-                Voir les offres →
-            </a>
-        </div>
-        {% endif %}
-        
-        <!-- Favorite Subject -->
-        {% if favorite_matiere %}
-        <div class="section-card" style="margin-bottom: 1.5rem;">
-            <h3 class="section-title">⭐ Matière favorite</h3>
-            <div class="favorite-subject">
-                <div class="favorite-icon">📚</div>
-                <div class="favorite-content">
-                    <h4>Tu révises le plus</h4>
-                    <p>{{ favorite_matiere }}</p>
+                    
+                    {% if abonnement.plan == 'gratuit' %}
+                    <a href="{% url 'abonnements:plans' %}" class="btn-upgrade">
+                        🚀 Passer à Premium
+                    </a>
+                    {% endif %}
                 </div>
             </div>
-        </div>
-        {% endif %}
-        
-        <!-- Profile Completion -->
-        <div class="section-card progress-card">
-            <h3 class="section-title">👤 Complétion du profil</h3>
-            <div class="progress-header">
-                <div class="progress-icon">🎯</div>
-                <div class="progress-info">
-                    <h4>{{ completion_percentage }}% terminé</h4>
-                    <p>Plus que quelques étapes !</p>
+
+            <!-- Matières populaires -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>🔥 Matières populaires</h3>
+                </div>
+                <div class="matieres-list">
+                    {% for matiere in matieres_populaires %}
+                    <a href="{% url 'epreuves:liste' %}?matiere={{ matiere.id }}" class="matiere-item">
+                        <span class="matiere-icon" style="background: {{ matiere.couleur }}20; color: {{ matiere.couleur }}">
+                            {{ matiere.icon }}
+                        </span>
+                        <span class="matiere-nom">{{ matiere.nom }}</span>
+                        <span class="matiere-count">{{ matiere.epreuves_count }}</span>
+                    </a>
+                    {% endfor %}
                 </div>
             </div>
-            <div class="progress-bar-large">
-                <div class="progress-fill-large" style="width: {{ completion_percentage }}%"></div>
+
+            <!-- Prochaines échéances -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>📅 Calendrier scolaire</h3>
+                </div>
+                <div class="echeances-list">
+                    <div class="echeance-item">
+                        <span class="echeance-date">Déc 2024</span>
+                        <span class="echeance-label">Fin 1er Semestre</span>
+                    </div>
+                    <div class="echeance-item important">
+                        <span class="echeance-date">Juin 2025</span>
+                        <span class="echeance-label">🎓 BEPC / Bac</span>
+                    </div>
+                </div>
             </div>
-            <div class="progress-steps">
-                <div class="progress-step {% if user.first_name %}completed{% endif %}">✓ Nom</div>
-                <div class="progress-step {% if user.email %}completed{% endif %}">✓ Email</div>
-                <div class="progress-step {% if user.phone %}completed{% endif %}">✓ Tél</div>
-                <div class="progress-step {% if user.school %}completed{% endif %}">✓ École</div>
-                <div class="progress-step {% if user.class_level %}completed{% endif %}">✓ Classe</div>
-            </div>
-            {% if completion_percentage < 100 %}
-            <p style="margin-top: 1rem; font-size: 0.875rem;">
-                <a href="{% url 'dashboard:profile' %}" style="color: var(--primary);">Compléter mon profil →</a>
-            </p>
-            {% endif %}
+
         </div>
     </div>
 </div>
+
+<style>
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Welcome */
+.welcome-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.welcome-text h1 {
+    font-size: 1.75rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-text p {
+    color: #6b7280;
+}
+
+.stat-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Stats grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.stat-card.premium {
+    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+    border: 1px solid #fef3c7;
+}
+
+.stat-icon-bg {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-info h3 {
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.stat-info p {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Dashboard grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 1.5rem;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.card-header h3 {
+    font-size: 1.1rem;
+    color: #1f2937;
+}
+
+.badge-semestre {
+    padding: 0.375rem 0.875rem;
+    background: #f3f4f6;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Périodes */
+.periodes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.periode-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: #f9fafb;
+    border-radius: 16px;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.periode-card:hover {
+    background: #f3f4f6;
+    border-color: #6366f1;
+    transform: translateY(-2px);
+}
+
+.periode-card.examen {
+    background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+    border-color: #fbbf24;
+}
+
+.periode-num {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.periode-card.examen .periode-num {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    font-size: 1.5rem;
+}
+
+.periode-info h4 {
+    font-size: 1rem;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.periode-info p {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.periode-count {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: white;
+    border-radius: 6px;
+    color: #6366f1;
+    font-weight: 500;
+}
+
+/* Downloads list */
+.downloads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.download-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 12px;
+}
+
+.dl-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.dl-info {
+    flex: 1;
+}
+
+.dl-info h4 {
+    font-size: 0.95rem;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.dl-info p {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.dl-date {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.btn-revoir {
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #6366f1;
+    border: 1px solid #e5e7eb;
+}
+
+/* Sidebar */
+.abonnement-info {
+    text-align: center;
+}
+
+.plan-badge {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.plan-gratuit { background: #fef3c7; color: #92400e; }
+.plan-mensuel { background: #dbeafe; color: #1e40af; }
+.plan-annuel { background: #d1fae5; color: #065f46; }
+
+.progress-bar {
+    height: 8px;
+    background: #f3f4f6;
+    border-radius: 9999px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 9999px;
+    transition: width 0.3s;
+}
+
+.progress-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+.btn-upgrade {
+    display: block;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Matières */
+.matieres-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.matiere-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.matiere-item:hover {
+    background: #f9fafb;
+}
+
+.matiere-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.matiere-nom {
+    flex: 1;
+    color: #1f2937;
+    font-size: 0.9rem;
+}
+
+.matiere-count {
+    padding: 0.25rem 0.5rem;
+    background: #f3f4f6;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* Échéances */
+.echeances-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.echeance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem;
+    background: #f9fafb;
+    border-radius: 10px;
+}
+
+.echeance-item.important {
+    background: #fef3c7;
+}
+
+.echeance-date {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.echeance-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .periodes-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}

@@ -1,0 +1,696 @@
+<!-- apps/epreuves/templates/epreuves/detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ epreuve.titre|default:epreuve.matiere.nom }} - {{ epreuve.get_type_epreuve_display }}{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    
+    <!-- Fil d'Ariane -->
+    <nav class="breadcrumb">
+        <a href="{% url 'epreuves:liste' %}">📚 Épreuves</a>
+        <span>›</span>
+        <a href="{% url 'epreuves:liste' %}?classe={{ epreuve.classe.id }}">{{ epreuve.classe.nom }}</a>
+        <span>›</span>
+        <a href="{% url 'epreuves:liste' %}?matiere={{ epreuve.matiere.id }}">{{ epreuve.matiere.nom }}</a>
+        <span>›</span>
+        <span>{{ epreuve.get_type_epreuve_display }}</span>
+    </nav>
+
+    <div class="detail-layout">
+        
+        <!-- Colonne principale -->
+        <main class="detail-main">
+            
+            <!-- En-tête -->
+            <div class="detail-header" style="--matiere-color: {{ epreuve.matiere.couleur }}">
+                <div class="header-badges">
+                    <span class="badge-type" style="background: {{ epreuve.matiere.couleur }}">
+                        {{ epreuve.matiere.icon }} {{ epreuve.get_type_epreuve_display }}
+                    </span>
+                    
+                    {% if epreuve.is_examen_officiel %}
+                    <span class="badge-examen-officiel">🎓 Examen Officiel</span>
+                    {% endif %}
+                    
+                    {% if epreuve.is_premium %}
+                    <span class="badge-premium">👑 Premium</span>
+                    {% endif %}
+                </div>
+                
+                <h1>{{ epreuve.titre|default:epreuve.matiere.nom }}</h1>
+                
+                <div class="header-meta">
+                    <span class="meta-classe">🎓 {{ epreuve.classe.nom }}</span>
+                    {% if epreuve.serie %}
+                    <span class="meta-serie" style="background: {{ epreuve.serie.couleur }}20; color: {{ epreuve.serie.couleur }}">
+                        Série {{ epreuve.serie.code }}
+                    </span>
+                    {% endif %}
+                    <span class="meta-periode">📅 {{ epreuve.periode.nom }} {{ epreuve.annee_scolaire }}</span>
+                </div>
+            </div>
+
+            <!-- Informations détaillées -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <span class="info-label">⏱️ Durée</span>
+                    <span class="info-value">{{ epreuve.duree|default:"Non spécifiée" }}</span>
+                </div>
+                
+                <div class="info-card">
+                    <span class="info-label">📊 Coefficient</span>
+                    <span class="info-value">{{ epreuve.coefficient|default:"—" }}</span>
+                </div>
+                
+                <div class="info-card">
+                    <span class="info-label">📝 Barème</span>
+                    <span class="info-value">Sur {{ epreuve.bareme }}</span>
+                </div>
+                
+                <div class="info-card">
+                    <span class="info-label">📄 Pages</span>
+                    <span class="info-value">{{ epreuve.nombre_pages|default:"?" }}</span>
+                </div>
+            </div>
+
+            <!-- Description -->
+            {% if epreuve.description %}
+            <div class="description-section">
+                <h3>📋 Description</h3>
+                <p>{{ epreuve.description|linebreaks }}</p>
+            </div>
+            {% endif %}
+
+            {% if epreuve.instructions %}
+            <div class="instructions-section">
+                <h3>⚠️ Instructions</h3>
+                <div class="instructions-box">
+                    {{ epreuve.instructions|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Actions de téléchargement -->
+            <div class="download-section">
+                <h3>📥 Télécharger l'épreuve</h3>
+                
+                {% if user.is_authenticated %}
+                    {% if has_access or not epreuve.is_premium %}
+                    <div class="download-options">
+                        
+                        <!-- Sujet -->
+                        <div class="download-card">
+                            <div class="download-icon">📄</div>
+                            <div class="download-info">
+                                <h4>Sujet de l'épreuve</h4>
+                                <p>{{ epreuve.taille_formatee }} • PDF</p>
+                            </div>
+                            <a href="{% url 'epreuves:telecharger' epreuve.slug %}" class="btn-download">
+                                ⬇️ Télécharger
+                            </a>
+                        </div>
+
+                        <!-- Corrigé -->
+                        {% if epreuve.fichier_corrige %}
+                        <div class="download-card">
+                            <div class="download-icon" style="background: #d1fae5;">✅</div>
+                            <div class="download-info">
+                                <h4>Corrigé type</h4>
+                                <p>Proposition de correction</p>
+                            </div>
+                            <a href="{% url 'epreuves:telecharger_corrige' epreuve.slug %}" class="btn-download btn-corrige">
+                                ⬇️ Corrigé
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        <!-- Rapport (pour examens) -->
+                        {% if epreuve.fichier_rapport %}
+                        <div class="download-card">
+                            <div class="download-icon" style="background: #fef3c7;">📊</div>
+                            <div class="download-info">
+                                <h4>Rapport de l'épreuve</h4>
+                                <p>Statistiques et analyse</p>
+                            </div>
+                            <a href="{{ epreuve.fichier_rapport.url }}" class="btn-download btn-rapport" target="_blank">
+                                👁️ Consulter
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if deja_telecharge %}
+                    <div class="alert alert-info">
+                        ✅ Vous avez déjà téléchargé cette épreuve. Vous pouvez la télécharger à nouveau gratuitement.
+                    </div>
+                    {% else %}
+                    <div class="download-notice">
+                        <p>
+                            💾 Il vous reste <strong>{{ downloads_remaining }}</strong> téléchargement{{ downloads_remaining|pluralize }} 
+                            sur votre abonnement <strong>{{ abonnement.get_plan_display }}</strong>
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    {% else %}
+                    <div class="premium-blocked">
+                        <div class="blocked-icon">🔒</div>
+                        <h4>Contenu Premium</h4>
+                        <p>Cette épreuve nécessite un abonnement actif pour être téléchargée.</p>
+                        <div class="blocked-actions">
+                            <a href="{% url 'abonnements:plans' %}" class="btn-premium">
+                                🚀 Passer à Premium
+                            </a>
+                            <span class="price">À partir de 2 500 FCFA/mois</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                {% else %}
+                <div class="login-required">
+                    <div class="login-icon">🔐</div>
+                    <h4>Connexion requise</h4>
+                    <p>Connectez-vous pour télécharger cette épreuve et accéder à 3 épreuves gratuites.</p>
+                    <a href="{% url 'accounts:login' %}?next={{ epreuve.get_absolute_url }}" class="btn-login">
+                        Se connecter
+                    </a>
+                    <p class="login-sub">
+                        Pas encore de compte ? <a href="{% url 'accounts:register' %}">Créer un compte gratuitement</a>
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+
+        </main>
+
+        <!-- Sidebar -->
+        <aside class="detail-sidebar">
+            
+            <!-- Stats -->
+            <div class="sidebar-card">
+                <h4>📊 Statistiques</h4>
+                <div class="stat-row">
+                    <span>Téléchargements</span>
+                    <strong>{{ epreuve.nombre_telechargements }}</strong>
+                </div>
+                <div class="stat-row">
+                    <span>Vues</span>
+                    <strong>{{ epreuve.nombre_vues }}</strong>
+                </div>
+                <div class="stat-row">
+                    <span>Ajouté le</span>
+                    <strong>{{ epreuve.created_at|date:"d/m/Y" }}</strong>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            {% if user.is_authenticated %}
+            <div class="sidebar-card">
+                <h4>⚡ Actions</h4>
+                <button class="btn-action {% if est_favori %}active{% endif %}" onclick="toggleFavoriDetail(this)">
+                    <span>{% if est_favori %}❤️{% else %}🤍{% endif %}</span>
+                    <span>{% if est_favori %}Retirer des favoris{% else %}Ajouter aux favoris{% endif %}</span>
+                </button>
+                
+                <button class="btn-action" onclick="partagerEpreuve()">
+                    <span>🔗</span>
+                    <span>Partager</span>
+                </button>
+                
+                <a href="{% url 'epreuves:liste' %}?matiere={{ epreuve.matiere.id }}" class="btn-action">
+                    <span>📚</span>
+                    <span>Plus de {{ epreuve.matiere.nom }}</span>
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Épreuves similaires -->
+            {% if similaires %}
+            <div class="sidebar-card">
+                <h4>📚 Épreuves similaires</h4>
+                <div class="similaires-list">
+                    {% for sim in similaires %}
+                    <a href="{{ sim.get_absolute_url }}" class="similaire-item">
+                        <div class="sim-type" style="background: {{ sim.matiere.couleur }}20; color: {{ sim.matiere.couleur }}">
+                            {{ sim.get_type_epreuve_display|truncatechars:15 }}
+                        </div>
+                        <div class="sim-info">
+                            <span class="sim-matiere">{{ sim.matiere.nom }}</span>
+                            <span class="sim-meta">{{ sim.periode.nom }} • {{ sim.annee_scolaire }}</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </aside>
+    </div>
+</div>
+
+<style>
+.detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Fil d'ariane */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.breadcrumb a {
+    color: #6366f1;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* Layout */
+.detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 2rem;
+}
+
+/* Header */
+.detail-header {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    border-left: 5px solid var(--matiere-color);
+}
+
+.header-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.badge-type {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.badge-examen-officiel {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.badge-premium {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+}
+
+.detail-header h1 {
+    font-size: 1.75rem;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.header-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.header-meta span {
+    padding: 0.375rem 0.875rem;
+    background: #f3f4f6;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* Info grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-card {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.info-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.info-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Sections */
+.description-section,
+.instructions-section {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.description-section h3,
+.instructions-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #1f2937;
+}
+
+.instructions-box {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 1rem;
+    border-radius: 0 8px 8px 0;
+}
+
+/* Download section */
+.download-section {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+}
+
+.download-section h3 {
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+}
+
+.download-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.download-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.download-card:hover {
+    border-color: #6366f1;
+}
+
+.download-icon {
+    width: 48px;
+    height: 48px;
+    background: #eff6ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.download-info {
+    flex: 1;
+}
+
+.download-info h4 {
+    font-size: 1rem;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+}
+
+.download-info p {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.btn-download {
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.btn-corrige {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.btn-rapport {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.download-notice {
+    padding: 1rem;
+    background: #eff6ff;
+    border-radius: 10px;
+    color: #1e40af;
+    font-size: 0.9rem;
+}
+
+/* Premium blocked */
+.premium-blocked,
+.login-required {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.blocked-icon,
+.login-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.premium-blocked h4,
+.login-required h4 {
+    font-size: 1.25rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.premium-blocked p,
+.login-required p {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+.blocked-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.btn-premium,
+.btn-login {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.price {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.login-sub {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+}
+
+.login-sub a {
+    color: #6366f1;
+}
+
+/* Sidebar */
+.detail-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sidebar-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem;
+}
+
+.sidebar-card h4 {
+    font-size: 1rem;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.9rem;
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+/* Actions */
+.btn-action {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.875rem;
+    background: #f9fafb;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #4b5563;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+}
+
+.btn-action:hover {
+    background: #f3f4f6;
+}
+
+.btn-action.active {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Similaires */
+.similaires-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.similaire-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.similaire-item:hover {
+    background: #f3f4f6;
+}
+
+.sim-type {
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.sim-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.sim-matiere {
+    font-size: 0.875rem;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.sim-meta {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function toggleFavoriDetail(btn) {
+    fetch('{% url "epreuves:favori" epreuve.slug %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            btn.classList.toggle('active');
+            const isActive = btn.classList.contains('active');
+            btn.querySelector('span:first-child').textContent = isActive ? '❤️' : '🤍';
+            btn.querySelector('span:last-child').textContent = isActive ? 'Retirer des favoris' : 'Ajouter aux favoris';
+        }
+    });
+}
+
+function partagerEpreuve() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ epreuve.titre|default:epreuve.matiere.nom }}',
+            text: 'Épreuve de {{ epreuve.matiere.nom }} - {{ epreuve.classe.nom }}',
+            url: window.location.href,
+        });
+    } else {
+        // Copier le lien
+        navigator.clipboard.writeText(window.location.href);
+        alert('Lien copié dans le presse-papiers !');
+    }
+}
+</script>
+{% endblock %}

@@ -4,7 +4,6 @@ from django.utils.text import slugify
 
 User = get_user_model()
 
-
 class SystemeScolaire(models.Model):
     """Système scolaire : Semestriel ou Trimestriel"""
     SYSTEME_CHOICES = [
