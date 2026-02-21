@@ -146,7 +146,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 # 4. Redirections après login/logout
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/home/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # 5. Messages
 from django.contrib.messages import constants as messages
@@ -157,4 +157,6 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'error',
 }
+
+
 
