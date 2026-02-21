@@ -1,0 +1,264 @@
+[
+  {
+    "model": "epreuves.systemescolaire",
+    "pk": 1,
+    "fields": {
+      "code": "semestriel",
+      "nom": "Système Semestriel",
+      "type_systeme": "semestriel",
+      "nombre_periodes": 2
+    }
+  },
+  {
+    "model": "epreuves.systemescolaire",
+    "pk": 2,
+    "fields": {
+      "code": "trimestriel",
+      "nom": "Système Trimestriel",
+      "type_systeme": "trimestriel",
+      "nombre_periodes": 3
+    }
+  },
+  
+  {
+    "model": "epreuves.niveau",
+    "pk": 1,
+    "fields": {
+      "code": "primaire",
+      "nom": "Enseignement Primaire",
+      "cycle": "primaire",
+      "systeme": 2,
+      "ordre": 1,
+      "has_serie": false,
+      "has_examen_final": true,
+      "nom_examen": "CEP"
+    }
+  },
+  {
+    "model": "epreuves.niveau",
+    "pk": 2,
+    "fields": {
+      "code": "college",
+      "nom": "Premier Cycle (Collège)",
+      "cycle": "college",
+      "systeme": 1,
+      "ordre": 2,
+      "has_serie": false,
+      "has_examen_final": true,
+      "nom_examen": "BEPC"
+    }
+  },
+  {
+    "model": "epreuves.niveau",
+    "pk": 3,
+    "fields": {
+      "code": "lycee",
+      "nom": "Second Cycle (Lycée)",
+      "cycle": "lycee",
+      "systeme": 1,
+      "ordre": 3,
+      "has_serie": true,
+      "has_examen_final": true,
+      "nom_examen": "Baccalauréat"
+    }
+  },
+
+  {
+    "model": "epreuves.classe",
+    "pk": 1,
+    "fields": {
+      "niveau": 2,
+      "nom": "6ème",
+      "code": "6eme",
+      "numero_classe": 1
+    }
+  },
+  {
+    "model": "epreuves.classe",
+    "pk": 2,
+    "fields": {
+      "niveau": 2,
+      "nom": "5ème",
+      "code": "5eme",
+      "numero_classe": 2
+    }
+  },
+  {
+    "model": "epreuves.classe",
+    "pk": 3,
+    "fields": {
+      "niveau": 2,
+      "nom": "4ème",
+      "code": "4eme",
+      "numero_classe": 3
+    }
+  },
+  {
+    "model": "epreuves.classe",
+    "pk": 4,
+    "fields": {
+      "niveau": 2,
+      "nom": "3ème",
+      "code": "3eme",
+      "numero_classe": 4
+    }
+  },
+  {
+    "model": "epreuves.classe",
+    "pk": 5,
+    "fields": {
+      "niveau": 3,
+      "nom": "2nde",
+      "code": "2nde",
+      "numero_classe": 1
+    }
+  },
+  {
+    "model": "epreuves.classe",
+    "pk": 6,
+    "fields": {
+      "niveau": 3,
+      "nom": "1ère",
+      "code": "1ere",
+      "numero_classe": 2
+    }
+  },
+  {
+    "model": "epreuves.classe",
+    "pk": 7,
+    "fields": {
+      "niveau": 3,
+      "nom": "Terminale",
+      "code": "terminale",
+      "numero_classe": 3
+    }
+  },
+
+  {
+    "model": "epreuves.periode",
+    "pk": 1,
+    "fields": {
+      "code": "s1",
+      "nom": "1er Semestre",
+      "numero": 1,
+      "mois_debut": "Septembre",
+      "mois_fin": "Janvier"
+    }
+  },
+  {
+    "model": "epreuves.periode",
+    "pk": 2,
+    "fields": {
+      "code": "s2",
+      "nom": "2ème Semestre",
+      "numero": 2,
+      "mois_debut": "Février",
+      "mois_fin": "Juin"
+    }
+  },
+  {
+    "model": "epreuves.periode",
+    "pk": 3,
+    "fields": {
+      "code": "t1",
+      "nom": "1er Trimestre",
+      "numero": 1,
+      "mois_debut": "Septembre",
+      "mois_fin": "Novembre"
+    }
+  },
+  {
+    "model": "epreuves.periode",
+    "pk": 4,
+    "fields": {
+      "code": "t2",
+      "nom": "2ème Trimestre",
+      "numero": 2,
+      "mois_debut": "Décembre",
+      "mois_fin": "Février"
+    }
+  },
+  {
+    "model": "epreuves.periode",
+    "pk": 5,
+    "fields": {
+      "code": "t3",
+      "nom": "3ème Trimestre",
+      "numero": 3,
+      "mois_debut": "Mars",
+      "mois_fin": "Juin"
+    }
+  },
+  {
+    "model": "epreuves.periode",
+    "pk": 6,
+    "fields": {
+      "code": "exam",
+      "nom": "Examen Final",
+      "numero": 0,
+      "mois_debut": "Juin",
+      "mois_fin": "Juillet"
+    }
+  },
+
+  {
+    "model": "epreuves.serie",
+    "pk": 1,
+    "fields": {
+      "code": "A",
+      "nom_complet": "Série A (Littéraire)",
+      "description": "Mathématiques, Physique-Chimie, SVT",
+      "couleur": "#8b5cf6"
+    }
+  },
+  {
+    "model": "epreuves.serie",
+    "pk": 2,
+    "fields": {
+      "code": "C",
+      "nom_complet": "Série C (Maths-Physique)",
+      "description": "Mathématiques, Physique-Chimie, SVT",
+      "couleur": "#3b82f6"
+    }
+  },
+  {
+    "model": "epreuves.serie",
+    "pk": 3,
+    "fields": {
+      "code": "D",
+      "nom_complet": "Série D (Maths-Nature)",
+      "description": "Mathématiques, SVT, Physique-Chimie",
+      "couleur": "#10b981"
+    }
+  },
+  {
+    "model": "epreuves.serie",
+    "pk": 4,
+    "fields": {
+      "code": "E",
+      "nom_complet": "Série E (Technique)",
+      "description": "Mathématiques, Technologie",
+      "couleur": "#f59e0b"
+    }
+  },
+  {
+    "model": "epreuves.serie",
+    "pk": 5,
+    "fields": {
+      "code": "TI",
+      "nom_complet": "Série TI (Technologie Industrielle)",
+      "description": "Technologie, Mathématiques",
+      "couleur": "#ef4444"
+    }
+  },
+  {
+    "model": "epreuves.serie",
+    "pk": 6,
+    "fields": {
+      "code": "G2",
+      "nom_complet": "Série G2 (Gestion)",
+      "description": "Mathématiques, Économie, Droit",
+      "couleur": "#ec4899"
+    }
+  }
+]
