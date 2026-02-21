@@ -13,7 +13,7 @@ from dashboard.models import Abonnement, UserStats
 # Modèles d'epreuves (pour les téléchargements et matières)
 from epreuves.models import Telechargement, Matiere
 
-
+from .models import UserPreference
 
 @require_http_methods(["GET", "POST"])
 def login_view(request):
@@ -200,6 +200,32 @@ def update_profile_view(request):
 
 
 
+
+
+# apps/accounts/views.py
+
+@login_required
+def preferences_view(request):
+    """Préférences utilisateur"""
+    preference, _ = UserPreference.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        # Mettre à jour les préférences
+        preference.newsletter_subscribed = request.POST.get('newsletter', False) == 'on'
+        preference.email_notifications = request.POST.get('email_notifications', False) == 'on'
+        preference.sms_notifications = request.POST.get('sms_notifications', False) == 'on'
+        preference.save()
+        
+        # Synchroniser avec le modèle User
+        request.user.newsletter_subscribed = preference.newsletter_subscribed
+        request.user.save(update_fields=['newsletter_subscribed'])
+        
+        messages.success(request, 'Préférences enregistrées avec succès !')
+        return redirect('accounts:preferences')
+    
+    return render(request, 'accounts/preferences.html', {
+        'preference': preference
+    })
 
 
 
